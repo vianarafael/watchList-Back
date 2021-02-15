@@ -87,7 +87,6 @@ const verifyJWT = (req, res, next) => {
 }
 
 app.get('/isAuth', verifyJWT, (req, res) => {
-  console.log('in isAuth')
   res.send("Authenticated");
 });
 
@@ -128,6 +127,12 @@ app.post('/login', (req, res) => {
 
   });
 
+})
+
+app.get("/movies/:id", (req, res) => {
+  console.log("in the server", req.params.id)
+  // this should be a DB connection that will return the fav movies from a user
+  res.send({userId: req.params.id});
 })
 
 // catch 404 and forward to error handler
