@@ -71,7 +71,6 @@ app.post('/register', (req, res) => {
 });
 
 const verifyJWT = (req, res, next) => {
-
   const token = req.headers["x-access-token"];
   if(!token) {
     res.send("No token provided");
@@ -130,13 +129,35 @@ app.post('/login', (req, res) => {
 })
 
 app.get("/movies/:id", (req, res) => {
-  console.log("in the server", req.params.id)
   // this should be a DB connection that will return the fav movies from a user
   res.send({userId: req.params.id});
 })
 
 app.post("/addMovie/:id", (req, res) => {
-  res.send(req.params.id);
+  const movieId = req.params.id;
+  const token = req.query.token
+  jwt.verify(token, 'secretKey', (err, decoded) => {
+    if (err)  {
+      console.log(err)
+    } else {
+      const userId = decoded.id;
+      client.query(`INSERT INTO movies(mid, user_id) VALUES(${movieId}, ${userId})`, (err, response) => {
+      if (err) { 
+        console.log(err);
+      } else {
+        res.send({message: "Movie added to WatchList"})
+      }
+  })
+
+    }
+  });
+  // how do I get the user ? 
+  // client.query(`INSERT INTO movies(mid, user_id) VALUES(${id}, 3)`, (err, res) => {
+  //   if (err) { 
+  //     console.log(err);
+  //   }
+  // })
+  // res.send('Donezo');
 })
 
 // catch 404 and forward to error handler
