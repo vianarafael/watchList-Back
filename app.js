@@ -135,6 +135,10 @@ app.get("/movies/:id", (req, res) => {
   res.send({userId: req.params.id});
 })
 
+app.post("/addMovie/:id", (req, res) => {
+  res.send(req.params.id);
+})
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
