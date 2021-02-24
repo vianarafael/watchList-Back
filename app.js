@@ -42,7 +42,7 @@ app.use(session({
   resave: false,
   saveUninitialiazed: false,
   cookie: {
-    expires: 60 * 60 * 24,
+    expires: new Date(Date.now() + 60 * 10000)
   }
 }))
 
@@ -56,6 +56,9 @@ const client = new Client({
 
 client.connect();
 
+app.get('/', (req, res) => {
+  res.send('hi')
+})
 
 app.post('/register', (req, res) => {
 
@@ -128,9 +131,12 @@ app.post('/login', (req, res) => {
 
 })
 
-app.get("/movies/:id", (req, res) => {
+app.get("/movies/:id", verifyJWT, (req, res) => {
   // this should be a DB connection that will return the fav movies from a user
-  res.send({userId: req.params.id});
+  const uid = req.params.id;
+  client.query(`SELECT * FROM movies WHERE user_id = ${uid}`, (err, response) => {
+    res.send(response);
+  })
 })
 
 app.post("/addMovie/:id", (req, res) => {
@@ -151,14 +157,22 @@ app.post("/addMovie/:id", (req, res) => {
 
     }
   });
-  // how do I get the user ? 
-  // client.query(`INSERT INTO movies(mid, user_id) VALUES(${id}, 3)`, (err, res) => {
-  //   if (err) { 
-  //     console.log(err);
-  //   }
-  // })
-  // res.send('Donezo');
 })
+
+
+app.delete("/removeMovie/:id", (req, res) => {
+  console.log(req.body, req.params)
+  const userId = req.body.uid;
+  const movieId = req.params.id;
+  client.query(`DELETE FROM movies WHERE mid=${movieId} AND user_id=${userId}`, (err, response) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.send(response);
+    }
+  })
+});
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
